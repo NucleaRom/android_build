@@ -171,6 +171,7 @@ include $(BUILD_SYSTEM)/device.mk
 # A NucleaRom build needs only the NR product makefiles.
 ifneq ($(NR_BUILD),)
   all_product_configs := $(shell find device -path "*/$(NR_BUILD)/nr.mk")
+  all_product_configs += $(wildcard vendor/nr/build/target/product/nr_$(NR_BUILD).mk)
 else
   ifneq ($(strip $(TARGET_BUILD_APPS)),)
   # An unbundled app build needs only the core product makefiles.
