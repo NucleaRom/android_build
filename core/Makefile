@@ -1413,6 +1413,7 @@ INTERNAL_SYSTEMIMAGE_FILES := $(filter $(TARGET_OUT)/%, \
     $(RECOVERY_RESOURCE_ZIP))
 
 systemimage-changelog: $(INTERNAL_SYSTEMIMAGE_FILES)
+	$(hide) chmod +x ./vendor/nr/tools/changelog
 	$(hide) ./vendor/nr/tools/changelog
 
 .PHONY: systemimage-changelog
