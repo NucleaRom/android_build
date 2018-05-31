@@ -301,6 +301,16 @@ endif
 			TARGET_AAPT_CHARACTERISTICS="$(TARGET_AAPT_CHARACTERISTICS)" \
 			$(PRODUCT_BUILD_PROP_OVERRIDES) \
 	        bash $(BUILDINFO_SH) >> $@
+ifeq ($(TARGET_COPY_OUT_VENDOR),system)
+	$(hide) TARGET_DEVICE="$(TARGET_DEVICE)" \
+			PRODUCT_NAME="$(TARGET_PRODUCT)" \
+			PRODUCT_BRAND="$(PRODUCT_BRAND)" \
+			PRODUCT_MODEL="$(PRODUCT_MODEL)" \
+			PRODUCT_MANUFACTURER="$(PRODUCT_MANUFACTURER)" \
+			TARGET_BOOTLOADER_BOARD_NAME="$(TARGET_BOOTLOADER_BOARD_NAME)" \
+			TARGET_BOARD_PLATFORM="$(TARGET_BOARD_PLATFORM)" \
+	        bash $(VENDOR_BUILDINFO_SH) >> $@
+endif
 	$(hide) $(foreach file,$(system_prop_file), \
 		if [ -f "$(file)" ]; then \
 			echo "#" >> $@; \
@@ -2176,6 +2186,9 @@ endif
 ifeq ($(TARGET_BUILD_PDK),true)
 build_ota_package := false
 endif
+ifeq ($(TARGET_FORCE_OTA_PACKAGE),true)
+build_ota_package := true
+endif
 
 ifeq ($(build_ota_package),true)
 OTATOOLS :=  $(HOST_OUT_EXECUTABLES)/minigzip \
@@ -2683,11 +2696,6 @@ ifdef PRODUCT_DEFAULT_DEV_CERTIFICATE
 else
 	$(hide) vendor/nr/build/tools/getb64key.py $(DEFAULT_SYSTEM_DEV_CERTIFICATE).x509.pem > $(zip_root)/META/releasekey.txt
 endif
-	@# Zip everything up, preserving symlinks and placing META/ files first to
-	@# help early validation of the .zip file while uploading it.
-	$(hide) (cd $(zip_root) && \
-	        zip -qryX ../$(notdir $@) ./META && \
-	        zip -qryXu ../$(notdir $@) .)
 	@# Run fs_config on all the system, vendor, boot ramdisk,
 	@# and recovery ramdisk files in the zip, and save the output
 	$(hide) $(call fs_config,$(zip_root)/SYSTEM,system/) > $(zip_root)/META/filesystem_config.txt
